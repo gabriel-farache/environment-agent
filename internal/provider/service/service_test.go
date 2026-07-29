@@ -60,7 +60,7 @@ var _ = Describe("toAPI health fallback", Label("unit"), func() {
 		}
 		p := svc.toAPI(ext)
 		Expect(p.Status).To(HaveValue(Equal(v1alpha1.Unhealthy)))
-		Expect(p.LastCheckTime).NotTo(BeNil())
+		Expect(p.LastCheckTime).To(BeNil())
 
 		emb := &store.StoredProvider{
 			ID: "emb-1", Name: "emb", ServiceType: "container",
@@ -68,6 +68,6 @@ var _ = Describe("toAPI health fallback", Label("unit"), func() {
 		}
 		p = svc.toAPI(emb)
 		Expect(p.Status).To(HaveValue(Equal(v1alpha1.Ready)))
-		Expect(p.LastCheckTime).NotTo(BeNil())
+		Expect(p.LastCheckTime).To(BeNil())
 	})
 })

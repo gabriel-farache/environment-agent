@@ -113,6 +113,9 @@ func (s *ProviderService) assignProviderID(ctx context.Context, requestedID *str
 	if requestedID == nil {
 		return provider.GenerateProviderID(), nil
 	}
+	if *requestedID == "" {
+		return "", &DomainError{Code: ErrCodeValidation, Message: "provider ID must not be empty"}
+	}
 
 	holder, err := s.store.GetByID(ctx, *requestedID)
 	if err != nil {
@@ -306,8 +309,6 @@ func (s *ProviderService) toAPI(sp *store.StoredProvider) *v1alpha1.Provider {
 			defaultStatus = v1alpha1.Ready
 		}
 		p.Status = &defaultStatus
-		var defaultTime time.Time
-		p.LastCheckTime = &defaultTime
 	}
 	if len(sp.Metadata) > 0 {
 		var meta v1alpha1.ProviderMetadata

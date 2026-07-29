@@ -37,10 +37,12 @@ func (h *Handler) CreateProvider(ctx context.Context, request oapigen.CreateProv
 	body := request.Body
 	instance := requestctx.URIFromContext(ctx)
 
+	var providerID *string
 	if request.Params.Id != nil && *request.Params.Id != "" {
 		if err := provider.ValidateProviderID(*request.Params.Id); err != nil {
 			return validationError("id", err, instance), nil
 		}
+		providerID = request.Params.Id
 	}
 	if err := provider.ValidateSchemaVersion(body.SchemaVersion); err != nil {
 		return validationError("schema_version", err, instance), nil
@@ -65,7 +67,7 @@ func (h *Handler) CreateProvider(ctx context.Context, request oapigen.CreateProv
 		body.ServiceType,
 		body.SchemaVersion,
 		body.DisplayName,
-		request.Params.Id,
+		providerID,
 		body.Operations,
 		metadataRaw,
 	)
@@ -73,7 +75,7 @@ func (h *Handler) CreateProvider(ctx context.Context, request oapigen.CreateProv
 		if domErr, ok := err.(*service.DomainError); ok && domErr.Code == service.ErrCodeConflict {
 			return oapigen.CreateProvider409ApplicationProblemPlusJSONResponse(v1alpha1.Error{
 				Type:     "CONFLICT",
-				Title:    "Service Type Conflict",
+				Title:    "Conflict",
 				Status:   ptr.To(409),
 				Detail:   ptr.To(domErr.Message),
 				Instance: instance,

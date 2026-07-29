@@ -60,7 +60,8 @@ func startRealServer() (baseURL string, stop func()) {
 		_ = ln.Close()
 	})
 
-	fileStore := store.NewFileStore(cfg.Provider.PersistencePath)
+	fileStore, err := store.NewFileStore(cfg.Provider.PersistencePath)
+	Expect(err).NotTo(HaveOccurred())
 	registry := provider.NewRegistry()
 	healthTracker := provider.NewInMemoryHealthTracker()
 	providerSvc := service.New(fileStore, registry, healthTracker, logger)
@@ -129,7 +130,10 @@ func validProviderBody() string {
 }
 
 func startWithPersistence(path string) error {
-	fileStore := store.NewFileStore(path)
+	fileStore, err := store.NewFileStore(path)
+	if err != nil {
+		return err
+	}
 	registry := provider.NewRegistry()
 	healthTracker := provider.NewInMemoryHealthTracker()
 	logger := slog.New(slog.NewTextHandler(io.Discard, nil))
