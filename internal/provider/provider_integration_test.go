@@ -62,7 +62,8 @@ func startRealServer() (baseURL string, stop func()) {
 
 	fileStore := store.NewFileStore(cfg.Provider.PersistencePath)
 	registry := provider.NewRegistry()
-	providerSvc := service.New(fileStore, registry, logger)
+	healthTracker := provider.NewInMemoryHealthTracker()
+	providerSvc := service.New(fileStore, registry, healthTracker, logger)
 	Expect(providerSvc.LoadPersisted()).To(Succeed())
 	providerSvc.RegisterEmbedded(cfg.Provider.EmbeddedSPs)
 
@@ -130,8 +131,9 @@ func validProviderBody() string {
 func startWithPersistence(path string) error {
 	fileStore := store.NewFileStore(path)
 	registry := provider.NewRegistry()
+	healthTracker := provider.NewInMemoryHealthTracker()
 	logger := slog.New(slog.NewTextHandler(io.Discard, nil))
-	providerSvc := service.New(fileStore, registry, logger)
+	providerSvc := service.New(fileStore, registry, healthTracker, logger)
 	return providerSvc.LoadPersisted()
 }
 

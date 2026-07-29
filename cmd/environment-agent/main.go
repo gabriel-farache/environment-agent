@@ -64,7 +64,8 @@ func run(ctx context.Context) int {
 
 	fileStore := store.NewFileStore(cfg.Provider.PersistencePath)
 	registry := provider.NewRegistry()
-	providerSvc := service.New(fileStore, registry, logger)
+	healthTracker := provider.NewInMemoryHealthTracker()
+	providerSvc := service.New(fileStore, registry, healthTracker, logger)
 
 	if err := providerSvc.LoadPersisted(); err != nil {
 		logger.Error("failed to load persisted providers", "error", err)
